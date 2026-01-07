@@ -4,285 +4,194 @@ A beta version to memorise and record your moment with your stars (artistes/idol
 <html lang="zh-Hant">
 <head>
     <meta charset="UTF-8">
-    <meta name="viewport" content="width=device-width, initial-scale=1.0">
-    <title>追星回憶筆記本 | Fandom Memories</title>
-    <link href="https://fonts.googleapis.com/css2?family=Klee+One:wght@400;600&family=Zen+Kurenaido&family=Noto+Sans+TC:wght@300;500&display=swap" rel="stylesheet">
-    
-    <script src="https://cdn.tailwindcss.com"></script>
-    
-    <script src="https://unpkg.com/react@18/umd/react.production.min.js"></script>
-    <script src="https://unpkg.com/react-dom@18/umd/react-dom.production.min.js"></script>
-    <script src="https://unpkg.com/babel-standalone@6/babel.min.js"></script>
-    <script src="https://unpkg.com/framer-motion@10.12.16/dist/framer-motion.js"></script>
-    <script src="https://unpkg.com/html-to-image@1.11.11/dist/html-to-image.js"></script>
-    <script src="https://cdn.jsdelivr.net/npm/tsparticles-confetti@2.12.0/tsparticles.confetti.bundle.min.js"></script>
-
+    <meta name="viewport" content="width=device-width, initial-scale=1.0, maximum-scale=1.0, user-scalable=no">
+    <title>StarDiary by Grafittiii</title>
+    <link href="https://fonts.googleapis.com/css2?family=LXGW+WenKai+TC:wght@400;700&family=Noto+Sans+TC:wght@400;700&display=swap" rel="stylesheet">
     <style>
+        :root {
+            --primary-font: 'LXGW WenKai TC', sans-serif;
+            --glass: rgba(255, 255, 255, 0.2);
+            --glass-border: rgba(255, 255, 255, 0.3);
+        }
+
+        * { box-sizing: border-box; margin: 0; padding: 0; }
         body {
-            margin: 0;
-            overflow-x: hidden;
-            font-family: 'Noto Sans TC', sans-serif;
-            background: #1a1a1a;
+            font-family: var(--primary-font);
+            height: 100vh; width: 100vw; overflow: hidden;
+            display: flex; align-items: center; justify-content: center;
+            transition: all 0.6s ease;
         }
-        .font-handwriting { font-family: 'Klee One', cursive; }
-        .font-zen { font-family: 'Zen Kurenaido', sans-serif; }
-        
-        /* 毛玻璃效果 */
-        .glass {
-            background: rgba(255, 255, 255, 0.15);
-            backdrop-filter: blur(12px);
-            -webkit-backdrop-filter: blur(12px);
-            border: 1px solid rgba(255, 255, 255, 0.3);
-            box-shadow: 0 8px 32px 0 rgba(31, 38, 135, 0.2);
+
+        /* --- 背景模板 --- */
+        .bg-sakura { background: linear-gradient(135deg, #fff0f3, #ffd6e0); color: #4a4a4a; }
+        .bg-british { background: #1a2e1a; color: #f5f5dc; }
+        .bg-stage { background: #1a0b2e; color: #fff; }
+        .bg-clover { background: #e8f5e9; color: #2e7d32; }
+        .bg-rainbow { background: linear-gradient(90deg, #ff9a9e, #fad0c4, #a1c4fd, #d4fc79); color: #444; }
+        .bg-sunflower { background: #fff9c4; color: #5d4037; }
+        .bg-starry { background: #0d1117; color: #c9d1d9; }
+
+        .app-wrapper {
+            width: 100%; height: 100%; display: flex; flex-direction: column;
+            align-items: center; justify-content: space-evenly; padding: 10px;
         }
+
+        /* --- 編輯卡片 --- */
+        .note-card {
+            background: var(--glass); backdrop-filter: blur(20px); -webkit-backdrop-filter: blur(20px);
+            border: 1px solid var(--glass-border); border-radius: 20px; padding: 20px;
+            width: 100%; max-width: 360px; position: relative;
+            display: flex; flex-direction: column; box-shadow: 0 10px 30px rgba(0,0,0,0.1);
+        }
+        .ratio-9-16 { aspect-ratio: 9 / 16; height: 52vh; }
+        .ratio-square { aspect-ratio: 1 / 1; height: 42vh; }
+
+        .question-display { font-size: 18px; font-weight: 700; margin-bottom: 15px; min-height: 3em; border-bottom: 1px solid rgba(0,0,0,0.1); padding-bottom: 10px; }
+
+        /* 可編輯區域 */
+        #answer-editor {
+            flex: 1; outline: none; font-size: 16px; line-height: 1.6;
+            overflow-y: auto; text-align: left;
+        }
+        #answer-editor:empty:before { content: "在此寫下妳的回憶..."; opacity: 0.5; }
+
+        /* --- 工具欄 (格式/字體) --- */
+        .toolbar {
+            display: flex; gap: 5px; margin-bottom: 10px; width: 100%; max-width: 360px;
+            overflow-x: auto; padding: 5px 0;
+        }
+        .tool-btn {
+            background: var(--glass); border: 1px solid var(--glass-border);
+            padding: 5px 10px; border-radius: 8px; font-size: 12px; cursor: pointer; color: inherit;
+        }
+        .font-select { background: var(--glass); border: 1px solid var(--glass-border); border-radius: 8px; font-size: 12px; padding: 5px; color: inherit; }
+
+        /* --- 控制面板 --- */
+        .control-panel { width: 100%; max-width: 380px; display: flex; flex-direction: column; gap: 8px; }
+        .theme-selector { display: flex; justify-content: center; gap: 8px; margin-bottom: 5px; }
+        .theme-dot { width: 22px; height: 22px; border-radius: 50%; cursor: pointer; border: 2px solid #fff; }
 
         .glass-btn {
-            background: rgba(255, 255, 255, 0.1);
-            backdrop-filter: blur(8px);
-            -webkit-backdrop-filter: blur(8px);
-            border: 1px solid rgba(255, 255, 255, 0.2);
-            transition: all 0.3s ease;
+            background: var(--glass); backdrop-filter: blur(10px); border: 1px solid var(--glass-border);
+            padding: 12px; border-radius: 12px; font-size: 13px; font-weight: 700; cursor: pointer; color: inherit;
         }
+        .btn-save { background: #222; color: #fff; border: none; }
 
-        .glass-btn:hover {
-            background: rgba(255, 255, 255, 0.25);
-            transform: translateY(-2px);
-        }
-
-        /* 隱藏滾動條但保持功能 */
-        .no-scrollbar::-webkit-scrollbar { display: none; }
-        .no-scrollbar { -ms-overflow-style: none; scrollbar-width: none; }
+        #exportCanvas { display: none; }
     </style>
 </head>
-<body>
-    <div id="root"></div>
+<body class="bg-sakura">
 
-    <script type="text/babel">
-        const { useState, useEffect, useRef } = React;
-        const { motion, AnimatePresence } = FramerMotion;
+    <div class="app-wrapper">
+        <div class="toolbar">
+            <button class="tool-btn" onclick="execCmd('bold')"><b>B</b></button>
+            <button class="tool-btn" onclick="execCmd('italic')"><i>I</i></button>
+            <button class="tool-btn" onclick="execCmd('underline')"><u>U</u></button>
+            <select class="font-select" onchange="changeFont(this.value)">
+                <option value="'LXGW WenKai TC'">霞鶩文楷 (手寫)</option>
+                <option value="'Noto Sans TC'">思源黑體 (現代)</option>
+                <option value="serif">標準明體 (經典)</option>
+            </select>
+        </div>
 
-        // ==========================================
-        // 題庫位置：在這裡加入或修改題目
-        // ==========================================
-        const promptLibrary = [
-            { category: "初遇悸動", text: "第一次在螢幕上看到他/她時，心臟漏跳一拍的瞬間" },
-            { category: "初遇悸動", text: "聽到第一首他/她的歌，反覆循環的那個下午" },
-            { category: "初遇悸動", text: "翻遍他/她的資料，驚覺「原來我們有一樣的小習慣」的驚喜" },
-            { category: "初遇悸動", text: "第一次為他/她發朋友圈，朋友留言「終於懂你的快樂」的溫暖" },
-            { category: "初遇悸動", text: "看到他/她的笑容，突然覺得當天的壞心情都被治癒了" },
-            { category: "初遇悸動", text: "發現自己和他/她喜歡同一部電影，忍不住瘋狂截圖的時刻" },
-            { category: "初遇悸動", text: "第一次存下他/她的照片，設成手機壁紙的小心思" },
-            { category: "初遇悸動", text: "聽到他/她說的某句話，突然有了直面困難的勇氣" },
-            { category: "初遇悸動", text: "第一次和同好分享喜歡的心情，兩人一拍即合的默契" },
-            { category: "初遇悸動", text: "看到他/她的舊視頻，驚歎「原來從那時候就這麼閃亮」" },
-            { category: "初遇悸動", text: "因為他/她，第一次主動去了解一個陌生的領域" },
-            { category: "初遇悸動", text: "第一次夢到他/她，醒來後嘴角還掛著微笑的清晨" },
-            { category: "初遇悸動", text: "看到他/她為夢想努力的樣子，決定也要變得更好的瞬間" },
-            { category: "初遇悸動", text: "第一次買他/她的周邊，拆包裹時緊張又興奮的心情" },
-            { category: "初遇悸動", text: "聽到他/她的聲音，就覺得整個世界都變得柔軟了" },
-            { category: "初遇悸動", text: "發現他/她和自己一樣喜歡吃某種零食，莫名的親近感" },
-            { category: "初遇悸動", text: "第一次參加線上應援，和成千上萬人一起喊加油的熱血" },
-            { category: "初遇悸動", text: "看到他/她的眼睛，覺得裡面有星星的悸動" },
-            { category: "初遇悸動", text: "因為他/她，學會了使用剪輯軟體，剪出第一個飯制視頻" },
-            { category: "初遇悸動", text: "第一次在街頭聽到他/她的歌，停下腳步駐足的時刻" },
-            { category: "初遇悸動", text: "翻到他/她的暖心採訪，默默把那句話記在筆記本裡" },
-            { category: "陪伴日常", text: "每天早上打開手機，先看他/她的最新動態的習慣" },
-            { category: "陪伴日常", text: "寫作業/加班到深夜，聽著他/她的歌就覺得不孤單了" },
-            { category: "陪伴日常", text: "把他/她的鼓勵語寫在便利貼上，貼在書桌前的小細節" },
-            { category: "陪伴日常", text: "遇到難過的事，翻出他/她的笑容照片，心情慢慢變好" },
-            { category: "陪伴日常", text: "和家人分享他/她的作品，家人說「確實很優秀」的認可" },
-            { category: "陪伴日常", text: "養成了存他/她的可愛瞬間，做成表情包分享的樂趣" },
-            { category: "陪伴日常", text: "每個節假日，都會認真給他/她寫一句祝福的小儀式感" },
-            { category: "陪伴日常", text: "因為他/她，開始養成早睡早起的習慣，想和他/她一樣自律" },
-            { category: "陪伴日常", text: "收拾房間時，看到滿牆的海報，忍不住傻笑的時刻" },
-            { category: "陪伴日常", text: "煮飯的時候聽他/她的歌，連菜都變得更好吃了" },
-            { category: "陪伴日常", text: "和同好一起打卡他/她去過的地方，拍下同款照片" },
-            { category: "陪伴日常", text: "把他/她的名字寫在筆記本扉頁，當成秘密動力" },
-            { category: "陪伴日常", text: "每次看到他/她認真工作的樣子，就覺得努力真的會發光" },
-            { category: "陪伴日常", text: "學會了他/她喜歡的歌，洗澡時偷偷哼唱的自在" },
-            { category: "陪伴日常", text: "看到他/她養的寵物，忍不住說「和主人一樣可愛」" },
-            { category: "陪伴日常", text: "因為他/她，結識了一群志同道合的朋友，一起談天說地" },
-            { category: "陪伴日常", text: "每個月回顧一次他/她的作品，都會有新的發現和感動" },
-            { category: "陪伴日常", text: "把他/她的照片帶在隨身的卡包裡，累的時候拿出來看看" },
-            { category: "陪伴日常", text: "看到他/她喜歡的顏色，買東西時會不自覺偏愛" },
-            { category: "陪伴日常", text: "熬夜看他/她的直播，雖然睏但嘴角一直上揚" },
-            { category: "陪伴日常", text: "因為他/她，開始學會發現生活中的小美好" }
-            // 您可以在此處繼續添加更多題目...
+        <div class="card-container">
+            <div id="capture-area" class="note-card ratio-9-16">
+                <div class="question-display" id="question-text">妳準備好記錄關於他/她的瞬間了嗎？</div>
+                <div id="answer-editor" contenteditable="true"></div>
+                <div style="display: flex; justify-content: space-between; opacity: 0.6; font-size: 10px; margin-top: 10px;">
+                    <div id="current-date"></div>
+                    <div style="font-weight: 700;">StarDiary by Grafittiii</div>
+                </div>
+            </div>
+        </div>
+
+        <div class="control-panel">
+            <div class="theme-selector">
+                <div class="theme-dot" style="background:#ffd6e0" onclick="setTheme('sakura')"></div>
+                <div class="theme-dot" style="background:#1a2e1a" onclick="setTheme('british')"></div>
+                <div class="theme-dot" style="background:#4a148c" onclick="setTheme('stage')"></div>
+                <div class="theme-dot" style="background:#a5d6a7" onclick="setTheme('clover')"></div>
+                <div class="theme-dot" style="background:#ff9a9e" onclick="setTheme('rainbow')"></div>
+                <div class="theme-dot" style="background:#fbc02d" onclick="setTheme('sunflower')"></div>
+                <div class="theme-dot" style="background:#0d1117" onclick="setTheme('starry')"></div>
+            </div>
+            
+            <button class="glass-btn" onclick="drawPrompt()">✦ 抽取題目 (他/她)</button>
+            
+            <div style="display: flex; gap: 8px;">
+                <button class="glass-btn" style="flex:1" onclick="setRatio('ratio-9-16')">9:16</button>
+                <button class="glass-btn" style="flex:1" onclick="setRatio('ratio-square')">1:1</button>
+            </div>
+            <button class="glass-btn btn-save" id="save-btn" onclick="handleSave()">📸 儲存圖片</button>
+        </div>
+    </div>
+
+    <canvas id="exportCanvas"></canvas>
+
+    <script src="https://cdnjs.cloudflare.com/ajax/libs/html2canvas/1.4.1/html2canvas.min.js"></script>
+    <script>
+        const questions = [
+            { cat: "初遇", txt: "第一次在螢幕上看到他/她時，心臟漏跳一拍的瞬間" },
+            { cat: "日常", txt: "聽著他/她的歌，在那段難熬的日子裡得到的安慰" },
+            { cat: "特質", txt: "他/她身上最吸引妳、讓妳想成為更好的人的優點" },
+            { cat: "現場", txt: "如果能在現場對他/她說一句話，妳最想說什麼？" }
         ];
 
-        // 模板配置
-        const themes = {
-            sakura: { name: "櫻花", bg: "linear-gradient(135deg, #fff5f5 0%, #ffd1dc 100%)", color: "#d53f8c" },
-            sunflower: { name: "向日葵", bg: "linear-gradient(135deg, #fffbeb 0%, #fef3c7 100%)", color: "#b45309" },
-            clover: { name: "四葉草", bg: "linear-gradient(135deg, #f0fff4 0%, #c6f6d5 100%)", color: "#2f855a" },
-            rainbow: { name: "彩虹", bg: "linear-gradient(135deg, #ebf8ff 0%, #e9d5ff 100%)", color: "#553c9a" },
-            starry: { name: "星空", bg: "linear-gradient(135deg, #1a202c 0%, #2d3748 100%)", color: "#e2e8f0" },
-            stage: { name: "舞台", bg: "linear-gradient(135deg, #2d3748 0%, #4a5568 100%)", color: "#fff" },
-            british: { name: "英倫", bg: "linear-gradient(135deg, #f7fafc 0%, #edf2f7 100%)", color: "#2c5282" }
-        };
+        let isDrawn = false;
 
-        const App = () => {
-            const [prompt, setPrompt] = useState(promptLibrary[0]);
-            const [userInput, setUserInput] = useState("");
-            const [theme, setTheme] = useState("sakura");
-            const [ratio, setRatio] = useState("9/16");
-            const [font, setFont] = useState("font-handwriting");
-            const noteRef = useRef(null);
+        function execCmd(cmd) { document.execCommand(cmd, false, null); }
+        
+        function changeFont(font) {
+            document.getElementById('answer-editor').style.fontFamily = font;
+            document.getElementById('question-text').style.fontFamily = font;
+        }
 
-            // 隨機抽取
-            const handleRandom = () => {
-                const randomIndex = Math.floor(Math.random() * promptLibrary.length);
-                setPrompt(promptLibrary[randomIndex]);
-                confetti({ particleCount: 40, spread: 70, origin: { y: 0.8 }, colors: ['#ffb7c5', '#ffffff'] });
-            };
+        function setTheme(t) { document.body.className = 'bg-' + t; }
 
-            // 儲存圖片
-            const handleSave = async () => {
-                if (noteRef.current === null) return;
-                const dataUrl = await htmlToImage.toPng(noteRef.current, { quality: 1, pixelRatio: 2 });
+        function drawPrompt() {
+            const q = questions[Math.floor(Math.random() * questions.length)];
+            document.getElementById('question-text').innerText = q.txt;
+            isDrawn = true;
+        }
+
+        function setRatio(r) {
+            const card = document.getElementById('capture-area');
+            card.className = `note-card ${r}`;
+        }
+
+        async function handleSave() {
+            if (!isDrawn) return alert("請先抽取題目！");
+            const editor = document.getElementById('answer-editor');
+            if (!editor.innerText.trim()) return alert("妳還沒寫下回憶呢！");
+
+            const btn = document.getElementById('save-btn');
+            btn.innerText = "生成中...";
+            btn.disabled = true;
+
+            try {
+                // 使用 html2canvas 捕捉富文本樣式（粗體、斜體等）
+                const canvas = await html2canvas(document.getElementById('capture-area'), {
+                    backgroundColor: null,
+                    scale: 3,
+                    useCORS: true,
+                    logging: false
+                });
+
                 const link = document.createElement('a');
-                link.download = `my-idol-memory-${Date.now()}.png`;
-                link.href = dataUrl;
+                link.download = `StarDiary_${Date.now()}.png`;
+                link.href = canvas.toDataURL("image/png");
                 link.click();
-            };
+                
+                btn.innerText = "儲存成功！";
+                setTimeout(() => { btn.innerText = "📸 儲存圖片"; btn.disabled = false; }, 2000);
+            } catch (err) {
+                alert("儲存失敗，請再試一次。文字已自動保留。");
+                btn.disabled = false;
+                btn.innerText = "📸 儲存圖片";
+            }
+        }
 
-            return (
-                <div className="min-h-screen w-full flex flex-col items-center justify-start py-10 px-4 md:px-10 transition-colors duration-500">
-                    
-                    {/* 背景動態裝飾 */}
-                    <div className="fixed inset-0 -z-10 opacity-30 pointer-events-none">
-                        <div className="absolute top-10 left-10 w-64 h-64 bg-pink-300 rounded-full blur-3xl animate-pulse"></div>
-                        <div className="absolute bottom-10 right-10 w-96 h-96 bg-blue-300 rounded-full blur-3xl animate-pulse delay-700"></div>
-                    </div>
-
-                    <h1 className="text-white text-3xl font-bold mb-8 tracking-widest opacity-90">追星回憶筆記本</h1>
-
-                    <div className="w-full max-w-6xl grid grid-cols-1 lg:grid-cols-12 gap-10 items-start">
-                        
-                        {/* 左側：預覽與作答區 */}
-                        <div className="lg:col-span-7 flex justify-center">
-                            <motion.div 
-                                id="note-capture"
-                                ref={noteRef}
-                                layout
-                                style={{ 
-                                    background: themes[theme].bg,
-                                    aspectRatio: ratio === '9/16' ? '9/16' : '3/4',
-                                    maxHeight: '80vh'
-                                }}
-                                className={`w-full max-w-[400px] shadow-2xl rounded-2xl p-8 flex flex-col justify-between relative overflow-hidden transition-all duration-700`}
-                            >
-                                {/* 裝飾元素 */}
-                                <div className="absolute top-0 right-0 p-4 opacity-20 text-4xl">✨</div>
-                                
-                                <div className="z-10">
-                                    <div className="mb-6">
-                                        <span 
-                                            style={{ color: themes[theme].color, borderColor: themes[theme].color }}
-                                            className="text-xs font-bold px-2 py-1 border rounded-full opacity-70"
-                                        >
-                                            #{prompt.category}
-                                        </span>
-                                    </div>
-                                    
-                                    <h2 
-                                        style={{ color: themes[theme].color }}
-                                        className={`text-2xl font-bold leading-relaxed mb-6 ${font}`}
-                                    >
-                                        {prompt.text}
-                                    </h2>
-
-                                    <textarea
-                                        value={userInput}
-                                        onChange={(e) => setUserInput(e.target.value)}
-                                        placeholder="在此處寫下你的心情..."
-                                        style={{ color: themes[theme].color }}
-                                        className={`w-full bg-transparent border-none focus:ring-0 text-lg resize-none placeholder:opacity-30 h-64 ${font} no-scrollbar`}
-                                    />
-                                </div>
-
-                                <div className="mt-4 flex justify-between items-end z-10">
-                                    <div className="opacity-40 text-xs">
-                                        <p>DATE: {new Date().toLocaleDateString()}</p>
-                                        <p>MEMORIES OF LOVE</p>
-                                    </div>
-                                    <div style={{ color: themes[theme].color }} className="font-bold opacity-60 tracking-tighter">
-                                        @FandomNotes
-                                    </div>
-                                </div>
-                            </motion.div>
-                        </div>
-
-                        {/* 右側：控制面板 */}
-                        <div className="lg:col-span-5 space-y-8">
-                            
-                            {/* 核心按鈕 */}
-                            <div className="grid grid-cols-2 gap-4">
-                                <button onClick={handleRandom} className="glass-btn text-white py-4 rounded-xl font-bold flex flex-col items-center">
-                                    <span className="text-xl mb-1">🎲</span>
-                                    抽取題目
-                                </button>
-                                <button onClick={handleSave} className="glass-btn text-white py-4 rounded-xl font-bold flex flex-col items-center bg-white/20">
-                                    <span className="text-xl mb-1">💾</span>
-                                    儲存分享
-                                </button>
-                            </div>
-
-                            {/* 字體選擇 */}
-                            <div className="glass p-6 rounded-2xl">
-                                <h3 className="text-white/70 text-sm mb-4">選擇字體</h3>
-                                <div className="flex gap-4">
-                                    <button onClick={() => setFont('font-handwriting')} className={`flex-1 py-2 rounded-lg border transition-all ${font === 'font-handwriting' ? 'bg-white text-black border-white' : 'text-white border-white/30'}`}>
-                                        手寫楷體
-                                    </button>
-                                    <button onClick={() => setFont('font-zen')} className={`flex-1 py-2 rounded-lg border transition-all ${font === 'font-zen' ? 'bg-white text-black border-white' : 'text-white border-white/30'}`}>
-                                        清秀細體
-                                    </button>
-                                </div>
-                            </div>
-
-                            {/* 比例選擇 */}
-                            <div className="glass p-6 rounded-2xl">
-                                <h3 className="text-white/70 text-sm mb-4">分享比例</h3>
-                                <div className="flex gap-4">
-                                    <button onClick={() => setRatio('9/16')} className={`flex-1 py-2 rounded-lg border transition-all ${ratio === '9/16' ? 'bg-white text-black border-white' : 'text-white border-white/30'}`}>
-                                        直屏 (9:16)
-                                    </button>
-                                    <button onClick={() => setRatio('3/4')} className={`flex-1 py-2 rounded-lg border transition-all ${ratio === '3/4' ? 'bg-white text-black border-white' : 'text-white border-white/30'}`}>
-                                        貼文 (3:4)
-                                    </button>
-                                </div>
-                            </div>
-
-                            {/* 模板選擇 */}
-                            <div className="glass p-6 rounded-2xl">
-                                <h3 className="text-white/70 text-sm mb-4">背景模板</h3>
-                                <div className="grid grid-cols-4 gap-3">
-                                    {Object.keys(themes).map(key => (
-                                        <button 
-                                            key={key}
-                                            onClick={() => setTheme(key)}
-                                            className={`h-12 rounded-lg border-2 transition-all flex items-center justify-center text-[10px] font-bold ${theme === key ? 'border-white scale-110' : 'border-transparent opacity-60'}`}
-                                            style={{ background: themes[key].bg, color: themes[key].color }}
-                                        >
-                                            {themes[key].name}
-                                        </button>
-                                    ))}
-                                </div>
-                            </div>
-
-                        </div>
-                    </div>
-
-                    <footer className="mt-16 text-white/30 text-sm">
-                        讓追星的每一刻悸動都被溫柔紀錄
-                    </footer>
-                </div>
-            );
-        };
-
-        const root = ReactDOM.createRoot(document.getElementById('root'));
-        root.render(<App />);
+        document.getElementById('current-date').innerText = new Date().toLocaleDateString();
     </script>
 </body>
 </html>
