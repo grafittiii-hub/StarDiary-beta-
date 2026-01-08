@@ -52,13 +52,15 @@
         }
 
         .top-controls { width: 100%; max-width: 360px; display: flex; flex-direction: column; gap: 10px; }
-        .toolbar-row { display: flex; gap: 8px; align-items: stretch; }
-        .format-group { display: flex; gap: 4px; background: rgba(255,255,255,0.6); padding: 5px 10px; border-radius: 12px; }
-        .tool-btn { border: none; background: none; font-size: 16px; cursor: pointer; color: #333; }
+        .toolbar-row { display: flex; gap: 6px; align-items: stretch; }
+        .format-group { display: flex; gap: 2px; background: rgba(255,255,255,0.6); padding: 5px 6px; border-radius: 12px; flex-shrink: 0; }
+        .tool-btn { border: none; background: none; font-size: 16px; cursor: pointer; color: #333; padding: 8px 10px; border-radius: 6px; transition: background 0.2s; }
+        .tool-btn:hover { background: rgba(0,0,0,0.08); }
+        .tool-btn:active { background: rgba(0,0,0,0.15); }
 
-        .font-select, .btn-draw { height: 40px; border-radius: 12px; border: none; font-family: inherit; font-size: 13px; font-weight: 700; }
-        .font-select { flex: 1.2; background: white; padding: 0 10px; }
-        .btn-draw { flex: 1; background: var(--accent-color); color: var(--accent-text); cursor: pointer; box-shadow: 0 4px 10px rgba(0,0,0,0.15); }
+        .font-select, .btn-draw { height: 40px; border-radius: 12px; border: none; font-family: inherit; font-size: 12px; font-weight: 700; }
+        .font-select { flex: 1; background: white; padding: 0 8px; min-width: 0; }
+        .btn-draw { flex: 0 0 auto; padding: 0 12px; background: var(--accent-color); color: var(--accent-text); cursor: pointer; box-shadow: 0 4px 10px rgba(0,0,0,0.15); white-space: nowrap; }
 
         /* 畫布區域 */
         .card-container { width: 100%; display: flex; justify-content: center; }
@@ -88,6 +90,24 @@
 
         /* 隱藏的 Canvas */
         #exportCanvas { display: none; }
+
+        /* Custom Modal */
+        .modal-overlay {
+            position: fixed; inset: 0; background: rgba(0,0,0,0.5);
+            display: flex; align-items: center; justify-content: center; z-index: 1000;
+            animation: fadeIn 0.2s ease;
+        }
+        @keyframes fadeIn { from { opacity: 0; } to { opacity: 1; } }
+        .modal-box {
+            background: white; padding: 24px 28px; border-radius: 16px;
+            max-width: 300px; text-align: center; box-shadow: 0 10px 40px rgba(0,0,0,0.2);
+        }
+        .modal-box p { font-size: 15px; color: #333; margin-bottom: 18px; line-height: 1.6; }
+        .modal-box button {
+            background: var(--accent-color); color: white; border: none;
+            padding: 10px 28px; border-radius: 10px; font-size: 14px;
+            font-weight: 700; cursor: pointer; font-family: inherit;
+        }
     </style>
 </head>
 <body class="theme-sakura" id="full-body">
@@ -143,7 +163,20 @@
 
     <script src="https://cdnjs.cloudflare.com/ajax/libs/html2canvas/1.4.1/html2canvas.min.js"></script>
     <script>
-        Const questions = [
+        function showAlert(message) {
+            const overlay = document.createElement('div');
+            overlay.className = 'modal-overlay';
+            overlay.innerHTML = `
+                <div class="modal-box">
+                    <p>${message}</p>
+                    <button onclick="this.closest('.modal-overlay').remove()">確定</button>
+                </div>
+            `;
+            document.body.appendChild(overlay);
+            overlay.addEventListener('click', (e) => { if (e.target === overlay) overlay.remove(); });
+        }
+
+        const questions = [
             { cat: "初遇", txt: "第一次在螢幕上看到他/她時，被吸引的一幕"},
             { cat: "初遇", txt:"第一次線下看到他/她時，心臟漏跳一拍的瞬間"},
             { cat: "陪伴", txt: "聽著他/她的歌，在那段難熬的日子裡得到的安慰"},
@@ -185,10 +218,21 @@
             card.classList.add(r);
         }
 
+        // 背景顏色映射 (用於導出)
+        const themeColors = {
+            'theme-sakura': ['#fff0f3', '#ffd6e0'],
+            'theme-british': ['#1a2e1a', '#1a2e1a'],
+            'theme-stage': ['#1a0b2e', '#2d1b4e'],
+            'theme-clover': ['#e8f5e9', '#a5d6a7'],
+            'theme-rainbow': ['#ff9a9e', '#a1c4fd'],
+            'theme-sunflower': ['#ffd773', '#fbc02d'],
+            'theme-starry': ['#0d1117', '#1a1f29']
+        };
+
         // 核心儲存邏輯修正
         async function handleSave() {
-            if (!isDrawn) return alert("請先抽取題目！");
-            if (!document.getElementById('answer-editor').innerText.trim()) return alert("請寫下你的心情記錄。");
+            if (!isDrawn) { showAlert("請先抽取題目！"); return; }
+            if (!document.getElementById('answer-editor').innerText.trim()) { showAlert("請寫下你的心情記錄。"); return; }
 
             const btn = document.getElementById('save-btn');
             const originalText = btn.innerText;
@@ -196,29 +240,69 @@
             btn.disabled = true;
 
             try {
-                // 修正：截取全屏 (body)，而不只是卡片
-                const canvas = await html2canvas(document.body, {
-                    scale: 2, // 為了相容性使用 2 倍率
+                const captureArea = document.getElementById('capture-area');
+                const bodyClass = document.getElementById('full-body').className;
+                const colors = themeColors[bodyClass] || ['#ffffff', '#f0f0f0'];
+
+                // 截取卡片區域
+                const cardCanvas = await html2canvas(captureArea, {
+                    scale: 2,
                     useCORS: true,
-                    allowTaint: true,
                     backgroundColor: null,
-                    // 確保截取當前視窗大小
-                    width: window.innerWidth,
-                    height: window.innerHeight
+                    logging: false
                 });
 
+                // 創建最終畫布 (9:16 或 1:1 比例)
+                const isSquare = captureArea.classList.contains('ratio-square');
+                const outputWidth = 1080;
+                const outputHeight = isSquare ? 1080 : 1920;
+
+                const finalCanvas = document.createElement('canvas');
+                finalCanvas.width = outputWidth;
+                finalCanvas.height = outputHeight;
+                const ctx = finalCanvas.getContext('2d');
+
+                // 繪製漸變背景
+                const gradient = ctx.createLinearGradient(0, 0, outputWidth, outputHeight);
+                gradient.addColorStop(0, colors[0]);
+                gradient.addColorStop(1, colors[1]);
+                ctx.fillStyle = gradient;
+                ctx.fillRect(0, 0, outputWidth, outputHeight);
+
+                // 星空主題特殊處理：添加星星
+                if (bodyClass === 'theme-starry') {
+                    ctx.fillStyle = 'white';
+                    for (let i = 0; i < 100; i++) {
+                        const x = Math.random() * outputWidth;
+                        const y = Math.random() * outputHeight;
+                        const r = Math.random() * 2 + 0.5;
+                        ctx.beginPath();
+                        ctx.arc(x, y, r, 0, Math.PI * 2);
+                        ctx.fill();
+                    }
+                }
+
+                // 計算卡片居中位置並繪製
+                const cardWidth = outputWidth * 0.85;
+                const cardHeight = (cardCanvas.height / cardCanvas.width) * cardWidth;
+                const cardX = (outputWidth - cardWidth) / 2;
+                const cardY = (outputHeight - cardHeight) / 2;
+
+                ctx.drawImage(cardCanvas, cardX, cardY, cardWidth, cardHeight);
+
+                // 下載圖片
                 const link = document.createElement('a');
                 link.download = `StarDiary_${Date.now()}.png`;
-                link.href = canvas.toDataURL("image/png");
-                document.body.appendChild(link); // 確保在 iOS 上能觸發
+                link.href = finalCanvas.toDataURL('image/png');
+                document.body.appendChild(link);
                 link.click();
                 document.body.removeChild(link);
-                
+
                 btn.innerText = "儲存成功！";
                 setTimeout(() => { btn.innerText = originalText; btn.disabled = false; }, 2000);
             } catch (err) {
-                console.error("Save Error:", err);
-                alert("儲存失敗，可能是瀏覽器權限問題。請嘗試截圖或換個瀏覽器。");
+                console.error("Save Error:", JSON.stringify(err.message || err));
+                showAlert("儲存失敗，可能是瀏覽器權限問題。請嘗試截圖或換個瀏覽器。");
                 btn.innerText = originalText;
                 btn.disabled = false;
             }
