@@ -31,7 +31,7 @@
         .theme-clover { background: linear-gradient(135deg, #e8f5e9, #a5d6a7); background-image: url("data:image/svg+xml,%3Csvg width='60' height='60' viewBox='0 0 60 60' xmlns='http://www.w3.org/2000/svg'%3E%3Cpath d='M30 30c5-10 15-10 15 0s-10 5-15 5c-5 0-15-5-15-5s10-10 15 0z' fill='%232e7d32' fill-opacity='0.1'/%3E%3C/svg%3E"); }
         .theme-rainbow { background: linear-gradient(135deg, #ff9a9e, #fad0c4, #ffecd2, #a1c4fd, #c2e9fb, #d4fc79); }
         /* 2. 向日葵：回歸黃橙漸變 */
-        .theme-sunflower { background: linear-gradient(135deg, #fbc02d, #ff8f00); background-image: radial-gradient(circle at top-left, rgba(255,255,255,0.2) 0%, transparent 70%); }
+        .theme-sunflower { background: linear-gradient(135deg, #ffd773, #fbc02d, #ff8f00); background-image: radial-gradient(circle at top-left, rgba(255,255,255,0.2) 0%, transparent 70%); }
         /* 3. 星空：隨機散落感 */
         .theme-starry { 
             background: #0d1117; 
@@ -111,7 +111,7 @@
         <div class="card-container">
             <div id="capture-area" class="note-card ratio-9-16">
                 <div id="category-badge" style="font-size: 10px; opacity: 0.5; letter-spacing: 2px; font-weight: 700;">STAR DIARY</div>
-                <div id="question-text" style="font-size: 20px; font-weight: 700; margin-top: 10px; line-height: 1.5;">妳準備好記錄關於他/她的瞬間了嗎？</div>
+                <div id="question-text" style="font-size: 20px; font-weight: 700; margin-top: 10px; line-height: 1.5;">點擊右上按鈕抽取題目↗️ 記錄關於他/她的瞬間</div>
                 <div id="answer-editor" contenteditable="true"></div>
                 <div style="display: flex; justify-content: space-between; align-items: flex-end; margin-top: 15px;">
                     <div id="current-date" style="font-size: 10px; opacity: 0.5;"></div>
@@ -144,10 +144,14 @@
     <script src="https://cdnjs.cloudflare.com/ajax/libs/html2canvas/1.4.1/html2canvas.min.js"></script>
     <script>
         const questions = [
-            { cat: "初遇", txt: "第一次在螢幕上看到他/她時，心臟漏跳一拍的瞬間" },
-            { cat: "陪伴", txt: "聽著他/她的歌，在那段難熬的日子裡得到的安慰" },
-            { cat: "特質", txt: "他/她身上最吸引妳、讓妳想成為更好的人的優點" },
-            { cat: "語錄", txt: "他/她曾經說過哪句話，讓妳至今依然記憶猶新？" }
+            { cat: "初遇", txt: "第一次在螢幕上看到他/她時，被吸引的一幕",
+            "第一次線下看到他/她，心臟漏跳一拍的瞬間"},
+            { cat: "陪伴", txt: "聽著他/她的歌，在那段難熬的日子裡得到的安慰",
+            "已經關注他/她_年_月_日了"},
+            { cat: "特質", txt: "他/她身上最吸引妳、讓妳想成為更好的人的優點",
+            "他/她怎樣的一面，應該要有更多人知道？"},
+            { cat: "語錄", txt: "他/她曾經說過哪句話，讓妳至今依然記憶猶新？",
+            "你最喜歡他/她的哪句歌詞/對白？"}
         ];
 
         let isDrawn = false;
@@ -184,7 +188,7 @@
         // 核心儲存邏輯修正
         async function handleSave() {
             if (!isDrawn) return alert("請先抽取題目！");
-            if (!document.getElementById('answer-editor').innerText.trim()) return alert("請寫下妳的心情。");
+            if (!document.getElementById('answer-editor').innerText.trim()) return alert("請寫下你的心情記錄。");
 
             const btn = document.getElementById('save-btn');
             const originalText = btn.innerText;
