@@ -54,7 +54,7 @@
         .top-controls { width: 100%; max-width: 360px; display: flex; flex-direction: column; gap: 10px; }
         .toolbar-row { display: flex; gap: 6px; align-items: stretch; }
         .format-group { display: flex; gap: 2px; background: rgba(255,255,255,0.6); padding: 5px 6px; border-radius: 12px; flex-shrink: 0; }
-        .tool-btn { border: none; background: none; font-size: 16px; cursor: pointer; color: #333; padding: 8px 10px; border-radius: 6px; transition: background 0.2s; }
+        .tool-btn { border: none; background: none; font-size: 16px; cursor: pointer; color: #333; padding: 6px 8px; border-radius: 6px; transition: background 0.2s; }
         .tool-btn:hover { background: rgba(0,0,0,0.08); }
         .tool-btn:active { background: rgba(0,0,0,0.15); }
 
