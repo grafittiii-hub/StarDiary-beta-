@@ -111,7 +111,7 @@
         <div class="card-container">
             <div id="capture-area" class="note-card ratio-9-16">
                 <div id="category-badge" style="font-size: 10px; opacity: 0.5; letter-spacing: 2px; font-weight: 700;">STAR DIARY</div>
-                <div id="question-text" style="font-size: 20px; font-weight: 700; margin-top: 10px; line-height: 1.5;">點擊右上按鈕抽取題目 記錄關於他/她的瞬間</div>
+                <div id="question-text" style="font-size: 20px; font-weight: 700; margin-top: 10px; line-height: 1.5;">你準備好記錄關於他/她的瞬間了嗎？</div>
                 <div id="answer-editor" contenteditable="true"></div>
                 <div style="display: flex; justify-content: space-between; align-items: flex-end; margin-top: 15px;">
                     <div id="current-date" style="font-size: 10px; opacity: 0.5;"></div>
@@ -143,9 +143,9 @@
 
     <script src="https://cdnjs.cloudflare.com/ajax/libs/html2canvas/1.4.1/html2canvas.min.js"></script>
     <script>
-        Random questions = [
+        Const questions = [
             { cat: "初遇", txt: "第一次在螢幕上看到他/她時，被吸引的一幕"},
-            { cat: "初遇", txt:"第一次線下看到他/她，心臟漏跳一拍的瞬間"},
+            { cat: "初遇", txt:"第一次線下看到他/她時，心臟漏跳一拍的瞬間"},
             { cat: "陪伴", txt: "聽著他/她的歌，在那段難熬的日子裡得到的安慰"},
             { cat: "陪伴", txt:"已經關注他/她_年_月_日了"},
             { cat: "特質", txt: "他/她身上最吸引妳、讓妳想成為更好的人的優點"},
