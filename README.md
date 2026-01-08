@@ -31,7 +31,7 @@
         .theme-clover { background: linear-gradient(135deg, #e8f5e9, #a5d6a7); background-image: url("data:image/svg+xml,%3Csvg width='60' height='60' viewBox='0 0 60 60' xmlns='http://www.w3.org/2000/svg'%3E%3Cpath d='M30 30c5-10 15-10 15 0s-10 5-15 5c-5 0-15-5-15-5s10-10 15 0z' fill='%232e7d32' fill-opacity='0.1'/%3E%3C/svg%3E"); }
         .theme-rainbow { background: linear-gradient(135deg, #ff9a9e, #fad0c4, #ffecd2, #a1c4fd, #c2e9fb, #d4fc79); }
         /* 2. 向日葵：回歸黃橙漸變 */
-        .theme-sunflower { background: linear-gradient(135deg, #fbc02d, #ff8f00); background-image: radial-gradient(circle at center, rgba(255,255,255,0.2) 0%, transparent 70%); }
+        .theme-sunflower { background: linear-gradient(135deg, #fbc02d, #ff8f00); background-image: radial-gradient(circle at top-left, rgba(255,255,255,0.2) 0%, transparent 70%); }
         /* 3. 星空：隨機散落感 */
         .theme-starry { 
             background: #0d1117; 
