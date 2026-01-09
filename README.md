@@ -68,7 +68,11 @@
         /* 1. 模板套用在全屏 (Body) */
         body {
             font-family: var(--primary-font);
-            height: 100vh; width: 100vw; overflow: hidden;
+            min-height: 100vh;
+            min-height: 100dvh; /* 動態視口高度，適應鍵盤 */
+            width: 100vw;
+            overflow-x: hidden;
+            overflow-y: auto;
             display: flex; align-items: center; justify-content: center;
             transition: 0.5s ease;
         }
@@ -116,11 +120,14 @@
 
         /* --- 介面佈局 --- */
         .app-wrapper {
-            width: 100%; height: 100%; display: flex; flex-direction: column;
+            width: 100%;
+            min-height: 100vh;
+            min-height: 100dvh;
+            display: flex; flex-direction: column;
             align-items: center; justify-content: space-evenly; padding: 20px; z-index: 10;
         }
 
-        .top-controls { width: 100%; max-width: 360px; display: flex; flex-direction: column; gap: 10px; margin-bottom: 20px; }
+        .top-controls { width: 100%; max-width: 360px; display: flex; flex-direction: column; gap: 10px; margin-bottom: 20px; flex-shrink: 0; }
         .toolbar-row { display: flex; gap: 6px; align-items: stretch; height: 44px; }
         .format-group { display: flex; gap: 2px; background: rgba(255,255,255,0.6); padding: 0 6px; border-radius: 12px; flex-shrink: 0; align-items: center; }
         .tool-btn { border: none; background: none; font-size: 16px; cursor: pointer; color: #333; padding: 0 10px; height: 100%; border-radius: 6px; transition: background 0.2s; display: flex; align-items: center; justify-content: center; }
@@ -132,24 +139,24 @@
         .btn-draw { flex: 0 0 auto; padding: 0 12px; background: var(--accent-color); color: var(--accent-text); cursor: pointer; box-shadow: 0 4px 10px rgba(0,0,0,0.15); white-space: nowrap; }
 
         /* 畫布區域 */
-        .card-container { width: 100%; display: flex; justify-content: center; }
+        .card-container { width: 100%; display: flex; justify-content: center; flex-shrink: 0; }
         .note-card {
             width: 100%; max-width: 360px; border-radius: 24px; padding: 25px;
             display: flex; flex-direction: column; position: relative;
-            box-shadow: 0 30px 60px rgba(0,0,0,0.2); 
+            box-shadow: 0 30px 60px rgba(0,0,0,0.2);
             background: var(--glass); /* 卡片本身是半透明磨砂 */
             transition: aspect-ratio 0.4s ease, height 0.4s ease;
         }
-        
-        /* 比例設定 */
-        .ratio-9-16 { aspect-ratio: 9 / 16; height: 55vh; }
-        .ratio-square { aspect-ratio: 1 / 1; height: 45vh; }
 
-        #answer-editor { flex: 1; outline: none; font-size: 18px; line-height: 1.8; margin-top: 15px; color: #111; overflow-y: auto; }
+        /* 比例設定 */
+        .ratio-9-16 { aspect-ratio: 9 / 16; height: 55vh; height: 55dvh; }
+        .ratio-square { aspect-ratio: 1 / 1; height: 45vh; height: 45dvh; }
+
+        #answer-editor { flex: 1; outline: none; font-size: 18px; line-height: 1.8; margin-top: 15px; color: #111; overflow-y: auto; min-height: 80px; }
         #answer-editor:empty:before { content: "在此寫下關於他/她的文字..."; opacity: 0.3; }
 
         /* 底部控制 */
-        .control-panel { width: 100%; max-width: 400px; display: flex; flex-direction: column; gap: 15px; margin-top: 20px; }
+        .control-panel { width: 100%; max-width: 400px; display: flex; flex-direction: column; gap: 15px; margin-top: 20px; flex-shrink: 0; padding-bottom: 20px; }
         .theme-selector { display: flex; justify-content: center; gap: 10px; }
         .theme-dot { width: 30px; height: 30px; border-radius: 50%; cursor: pointer; border: 2px solid white; box-shadow: 0 2px 6px rgba(0,0,0,0.1); }
         
@@ -460,6 +467,15 @@
                     fontLoadStatus[font] = true;
                 }
             });
+        });
+
+        // 處理鍵盤彈出時的滾動 - 確保輸入區域可見
+        const answerEditor = document.getElementById('answer-editor');
+        answerEditor.addEventListener('focus', () => {
+            // 短暫延遲等待鍵盤完全彈出
+            setTimeout(() => {
+                answerEditor.scrollIntoView({ behavior: 'smooth', block: 'center' });
+            }, 300);
         });
 
         function setTheme(themeName, accentColor) {
