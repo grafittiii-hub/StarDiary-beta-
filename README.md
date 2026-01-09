@@ -66,15 +66,19 @@
         * { box-sizing: border-box; margin: 0; padding: 0; }
         
         /* 1. 模板套用在全屏 (Body) */
+        html, body {
+            overflow-x: hidden;
+            max-width: 100%;
+        }
         body {
             font-family: var(--primary-font);
             min-height: 100vh;
             min-height: 100dvh; /* 動態視口高度，適應鍵盤 */
-            width: 100vw;
-            overflow-x: hidden;
+            width: 100%;
             overflow-y: auto;
             display: flex; align-items: center; justify-content: center;
             transition: 0.5s ease;
+            background-attachment: fixed;
         }
 
         /* --- 七大全屏模板 --- */
